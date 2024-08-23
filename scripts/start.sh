@@ -15,6 +15,6 @@ gh codespace ports visibility 4000:public -c $CODESPACE_NAME
 gh codespace ports visibility 3000:public -c $CODESPACE_NAME
 
 # install python requirements
-curl -o /etc/skyramp/requirements.txt https://raw.githubusercontent.com/letsramp/Skyramp-for-Github-Copilot/main/.devcontainer/scripts/requirements.txt
+curl -o /etc/skyramp/requirements.txt https://raw.githubusercontent.com/letsramp/Skyramp-for-Github-Copilot/main/scripts/requirements.txt
 chmod +x /etc/skyramp/requirements.txt
 /usr/local/python/current/bin/pip install -r /etc/skyramp/requirements.txt
