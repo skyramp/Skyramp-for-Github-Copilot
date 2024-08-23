@@ -8,7 +8,7 @@ services:
       - "35142:35142"
     restart: always
   dashboard-server:
-    image: public.ecr.aws/j1n2c2p2/rampup/dashboard-server:latest
+    image: ghcr.io/letsramp/rampup/dashboard-server:latest
     environment:
       NODE_ENV: production
       DOCKER_ENV: true 
