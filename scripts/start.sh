@@ -4,7 +4,7 @@
 yes | bash -c "$(curl -fsSL https://skyramp.dev/installer.sh)"
 
 # install skyramp worker and dashboard
-curl -o /etc/skyramp/docker-compose.yml https://raw.githubusercontent.com/letsramp/Skyramp-for-Github-Copilot/main/.devcontainer/scripts/docker-compose.yml
+curl -o /etc/skyramp/docker-compose.yml https://raw.githubusercontent.com/letsramp/Skyramp-for-Github-Copilot/main/scripts/docker-compose.yml
 docker compose -f /etc/skyramp/docker-compose.yml up -d --wait || true
 
 # start skyramp  server
