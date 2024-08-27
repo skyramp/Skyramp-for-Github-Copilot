@@ -1,0 +1,485 @@
+openapi: 3.0.1
+info:
+  title: Restful booker
+  description: An API for practising your testing skills
+  license:
+    name: 'License: GNU GPL'
+    url: https://github.com/texttest/restful-booker/blob/with_texttests/LICENSE
+  version: 2.0.0
+servers:
+  - url: /
+paths:
+  /ping:
+    get:
+      summary: ping HealthCheck
+      description: >-
+        A simple health check endpoint to confirm whether the API is up and
+        running.
+      responses:
+        '201':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                PING_SUCCESS:
+                  value: success
+  /auth:
+    post:
+      summary: Get an authorization token
+      description: Get an authorization token
+      requestBody:
+        description: username and password
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthParams'
+            examples:
+              AUTH:
+                value:
+                  username: admin2
+                  password: password123
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              examples:
+                AUTH:
+                  value:
+                    token: abc123
+                    reason: Login successful
+        '400':
+          description: unsuccessful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+      x-codegen-request-body-name: body
+  /booking:
+    get:
+      summary: Get booking IDs
+      description: >-
+        Returns the ids of all the bookings that exist within the API. Can take
+        optional query strings to search and return a subset of booking ids.
+      parameters:
+        - name: firstname
+          in: query
+          description: Bookings with this firstname
+          schema:
+            type: string
+          examples:
+            GET_BOOKING_IDS:
+              value: Jim
+            GET_INVALID_CHECKIN_DATE:
+              value: (omit)
+        - name: lastname
+          in: query
+          description: Bookings with this lastname
+          schema:
+            type: string
+          examples:
+            GET_BOOKING_IDS:
+              value: Brown
+            GET_INVALID_CHECKIN_DATE:
+              value: (omit)
+        - name: checkin
+          in: query
+          description: >-
+            Bookings that have a checkin date greater than or equal to this
+            date. Format must be CCYY-MM-DD
+          schema:
+            type: string
+            format: date
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+          examples:
+            GET_BOOKING_IDS:
+              value: 2018-01-01
+            GET_INVALID_CHECKIN_DATE:
+              value: 123
+        - name: checkout
+          in: query
+          description: >-
+            Bookings that have a checkout date greater than or equal to this
+            date. Format must be CCYY-MM-DD
+          schema:
+            type: string
+            format: date
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+          examples:
+            GET_BOOKING_IDS:
+              value: 2019-01-01
+            GET_INVALID_CHECKIN_DATE:
+              value: (omit)
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetIdsResponse'
+              examples:
+                GET_BOOKING_IDS:
+                  value:
+                    - bookingid: 3
+                    - bookingid: 4
+                    - bookingid: 5
+        '400':
+          description: invalid request
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                GET_INVALID_CHECKIN_DATE:
+                  value: Invalid checkin date supplied
+    post:
+      summary: Create booking
+      description: Creates a new booking in the API
+      requestBody:
+        description: booking object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+            examples:
+              CREATE_BOOKING:
+                value:
+                  firstname: Jim
+                  lastname: Brown
+                  totalprice: 111
+                  depositpaid: true
+                  bookingdates:
+                    checkin: 2018-01-01
+                    checkout: 2019-01-01
+                  additionalneeds: Breakfast
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+              examples:
+                CREATE_BOOKING:
+                  value:
+                    bookingid: 1
+                    booking:
+                      firstname: Jim
+                      lastname: Brown
+                      totalprice: 111
+                      depositpaid: true
+                      bookingdates:
+                        checkin: 2018-01-01
+                        checkout: 2019-01-01
+                      additionalneeds: Breakfast
+        '400':
+          description: invalid request
+          content:
+            text/plain:
+              schema:
+                type: string
+      x-codegen-request-body-name: body
+  /booking/{id}:
+    get:
+      summary: Get booking
+      description: Returns a specific booking based upon the booking id provided
+      parameters:
+        - name: id
+          in: path
+          description: booking id to find
+          required: true
+          schema:
+            type: integer
+          examples:
+            GET_BOOKING:
+              value: 3
+            GET_INVALID_BOOKING_ID:
+              value: -1
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+              examples:
+                GET_BOOKING:
+                  value:
+                    firstname: Jim
+                    lastname: Brown
+                    totalprice: 111
+                    depositpaid: true
+                    bookingdates:
+                      checkin: 2018-01-01
+                      checkout: 2019-01-01
+                    additionalneeds: Breakfast
+        '404':
+          description: not found
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                GET_INVALID_BOOKING_ID:
+                  value: Invalid ID supplied
+    put:
+      summary: Update a booking
+      description: Update a booking
+      parameters:
+        - name: id
+          in: path
+          description: booking id to update
+          required: true
+          schema:
+            type: integer
+          examples:
+            UPDATE_BOOKING:
+              value: 8
+        - name: Authorization
+          in: header
+          description: >-
+            The authorization header. There is a secret value that only
+            application administrators know.
+          schema:
+            type: string
+          required: true
+          examples:
+            UPDATE_BOOKING:
+              value: Basic YWRtaW46cGFzc3dvcmQxMjM=
+      requestBody:
+        description: booking object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+            examples:
+              UPDATE_BOOKING:
+                value:
+                  firstname: Mary
+                  lastname: Jones
+                  totalprice: 111
+                  depositpaid: true
+                  bookingdates:
+                    checkin: 2018-01-01
+                    checkout: 2019-01-01
+                  additionalneeds: Breakfast
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+              examples:
+                UPDATE_BOOKING:
+                  value:
+                    firstname: Mary
+                    lastname: Jones
+                    totalprice: 111
+                    depositpaid: true
+                    bookingdates:
+                      checkin: 2018-01-01
+                      checkout: 2019-01-01
+                    additionalneeds: Breakfast
+        '400':
+          description: invalid request
+          content:
+            text/plain:
+              schema:
+                type: string
+      x-codegen-request-body-name: body
+    delete:
+      summary: Delete a booking
+      description: Delete a booking
+      parameters:
+        - name: id
+          in: path
+          description: Booking id that needs to be deleted
+          required: true
+          schema:
+            type: integer
+          examples:
+            DELETE_BOOKING:
+              value: 6
+            DELETE_INVALID_BOOKING_ID:
+              value: -1
+        - name: Authorization
+          in: header
+          description: >-
+            The authorization header. There is a secret value that only
+            application administrators know.
+          schema:
+            type: string
+          required: true
+          examples:
+            DELETE_BOOKING:
+              value: Basic YWRtaW46cGFzc3dvcmQxMjM=
+            DELETE_INVALID_BOOKING_ID:
+              value: Basic YWRtaW46cGFzc3dvcmQxMjM=
+      responses:
+        '201':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                DELETE_BOOKING:
+                  value: Deleted
+        '404':
+          description: booking not found
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                DELETE_INVALID_BOOKING_ID:
+                  value: Invalid ID supplied
+    patch:
+      summary: Partially update a booking
+      description: Partially update a booking
+      parameters:
+        - name: id
+          in: path
+          description: booking id to update
+          required: true
+          schema:
+            type: integer
+          examples:
+            UPDATE_BOOKING:
+              value: 7
+        - name: Authorization
+          in: header
+          description: >-
+            The authorization header. There is a secret value that only
+            application administrators know.
+          schema:
+            type: string
+          required: true
+          examples:
+            UPDATE_BOOKING:
+              value: Basic YWRtaW46cGFzc3dvcmQxMjM=
+      requestBody:
+        description: booking object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+            examples:
+              UPDATE_BOOKING:
+                value:
+                  firstname: Jim
+                  lastname: Brown
+                  totalprice: 111
+                  depositpaid: true
+                  bookingdates:
+                    checkin: 2018-01-01
+                    checkout: 2019-01-01
+                  additionalneeds: Breakfast
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+              examples:
+                UPDATE_BOOKING:
+                  value:
+                    firstname: Jim
+                    lastname: Brown
+                    totalprice: 111
+                    depositpaid: true
+                    bookingdates:
+                      checkin: 2018-01-01
+                      checkout: 2019-01-01
+                    additionalneeds: Breakfast
+        '400':
+          description: invalid request
+          content:
+            text/plain:
+              schema:
+                type: string
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    GetIdsResponse:
+      type: object
+      properties:
+        bookingid:
+          type: integer
+          description: unique ID of the booking
+      description: The id of the booking
+    Booking:
+      type: object
+      required:
+        - firstname
+        - lastname
+        - bookingdates
+        - depositpaid
+        - totalprice
+      properties:
+        firstname:
+          type: string
+          description: First name of the guest who made the booking
+        lastname:
+          type: string
+          description: Last name for the guest who made the booking
+        totalprice:
+          type: integer
+          description: The total price for the booking
+        depositpaid:
+          type: boolean
+          description: Whether the deposit has been paid or not
+        bookingdates:
+          type: object
+          required:
+            - checkin
+            - checkout
+          properties:
+            checkin:
+              type: string
+              format: date
+              pattern: '^\d{4}-\d{2}-\d{2}$'
+              description: Date the guest is checking in
+            checkout:
+              type: string
+              format: date
+              pattern: '^\d{4}-\d{2}-\d{2}$'
+              description: Date the guest is checking out
+        additionalneeds:
+          type: string
+          description: Any other needs the guest has
+      description: Represents a hotel booking in the system.
+    BookingResponse:
+      type: object
+      properties:
+        bookingid:
+          type: integer
+        booking:
+          $ref: '#/components/schemas/Booking'
+    AuthParams:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        reason:
+          type: string
+x-original-swagger-version: '2.0'
