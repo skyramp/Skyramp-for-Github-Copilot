@@ -359,26 +359,6 @@ paths:
   #   trace: {}
   #   options: {}
 
-  /delay/{n}:
-    get:
-      summary: Delays responding for min(n, 10) seconds.
-      parameters:
-        - name: n
-          in: path
-          required: true
-          description: Response delay, in seconds.
-          schema:
-            type: integer
-            minimum: 0
-            maximum: 10
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json: {}
-              # schema:
-              #   type: object
-
   /bearer:
     get:
       summary: Tests Bearer authentication
