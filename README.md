@@ -16,7 +16,7 @@ This repository also includes the following files:
     - Open ports on the GitHub Codespace so you can easily view test results on the Skyramp dashboard
     - Run a script to install the Skyramp tool, configure the opened ports, and finally bring up all of the Skyramp processes and containers
 
-## Below are a few prompts for you to test out some of Skyramp’s functionality:
+### Key Functionalities
 
 - **Learn about Skyramp**
     - “What can you do?”
