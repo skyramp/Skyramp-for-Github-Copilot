@@ -1,6 +1,6 @@
 # What is Skyramp
 
-The Skyramp Agent Extension acts as your personal quality engineer transforming functional test creation and execution. Through the intuitive and conversational interface of Copilot, you can now easily generate and automatically execute tests ensuring the reliability of your interfaces.
+Skyramp acts as your personal quality engineer transforming functional test creation and execution. Through the intuitive and conversational interface of Copilot, you can now easily generate and automatically execute tests ensuring the reliability of your interfaces.
 
 # Get Started with Skyramp
 
